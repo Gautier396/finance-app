@@ -32,3 +32,20 @@ def compute_beta_from_prices(prices: pd.DataFrame, market_col: str) -> pd.Series
 
     returns = np.log(prices / prices.shift(1)).dropna(how="all")
     return compute_beta(returns, market_col)
+
+
+def calculate_metrics(returns: pd.DataFrame, market_col: str | None = None) -> dict[str, list[float]]:
+    """Return metrics dict expected by the risk chart: {ticker: [beta, specific_risk_pct]}."""
+    if returns is None or returns.empty:
+        raise ValueError("returns DataFrame is empty")
+
+    market = market_col or returns.columns[0]
+    betas = compute_beta(returns, market)
+
+    metrics: dict[str, list[float]] = {}
+    for ticker in returns.columns:
+        beta_value = 1.0 if ticker == market else float(betas.get(ticker, np.nan))
+        specific_risk_pct = float(returns[ticker].std(ddof=0) * 100)
+        metrics[ticker] = [beta_value, specific_risk_pct]
+
+    return metrics
