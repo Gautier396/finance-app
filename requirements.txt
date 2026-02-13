@@ -3,3 +3,7 @@ uvicorn
 pandas
 numpy
 plotly
+yfinance
+scikit-learn
+scipy
+arch

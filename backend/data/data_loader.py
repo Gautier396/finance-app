@@ -4,17 +4,54 @@ from typing import Iterable
 
 import numpy as np
 import pandas as pd
+import yfinance as yf
 
 
-def get_clean_data(tickers: Iterable[str], days: int = 252, seed: int = 42) -> pd.DataFrame:
-    """Return a clean price DataFrame indexed by business day.
-
-    This local deterministic generator avoids network dependency while giving
-    realistic-looking price series for API/testing flows.
-    """
+def get_clean_data(
+    tickers: Iterable[str],
+    days: int = 252,
+    seed: int = 42,
+    use_yahoo: bool = True,
+) -> pd.DataFrame:
+    """Return a clean price DataFrame indexed by business day."""
     tickers = [t.strip().upper() for t in tickers if t and t.strip()]
     if not tickers:
         raise ValueError("tickers must contain at least one symbol")
+
+    if use_yahoo:
+        end = pd.Timestamp.today().normalize()
+        start = end - pd.Timedelta(days=int(days * 1.6))
+        data = yf.download(
+            tickers=tickers,
+            start=start.date().isoformat(),
+            end=end.date().isoformat(),
+            interval="1d",
+            auto_adjust=True,
+            group_by="column",
+            progress=False,
+            threads=True,
+        )
+
+        if data is None or data.empty:
+            raise ValueError("Yahoo Finance returned no data for tickers")
+
+        if isinstance(data.columns, pd.MultiIndex):
+            if "Close" in data.columns.get_level_values(0):
+                prices = data["Close"]
+            elif "Adj Close" in data.columns.get_level_values(0):
+                prices = data["Adj Close"]
+            else:
+                prices = data.xs("Close", level=0, axis=1, drop_level=True)
+        else:
+            prices = data[["Close"]] if "Close" in data.columns else data
+
+        prices = prices.dropna(how="all")
+        if prices.empty:
+            raise ValueError("No usable price data after cleaning")
+
+        prices = prices.tail(days)
+        prices.columns = [c.upper() for c in prices.columns]
+        return prices
 
     index = pd.bdate_range(end=pd.Timestamp.today().normalize(), periods=days)
     rng = np.random.default_rng(seed)
