@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QuantRiskLab Dashboard</title>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- Navigation Header -->
+    <header class="header">
+        <div class="container">
+            <div class="logo" style="display:flex; align-items:center; gap:10px;">
+                <img src="logo.png" alt="QuantRiskLab" style="height:40px;" />
+                <h1>QuantRiskLab Dashboard</h1>
+            </div>
+            <nav class="nav-tabs">
+                <button class="nav-tab active" data-section="portfolio">Portfolio</button>
+                <button class="nav-tab" data-section="beta">Beta Analysis</button>
+                <button class="nav-tab" data-section="risk">Risk Chart</button>
+                <button class="nav-tab" data-section="clustering">Clustering</button>
+                <button class="nav-tab" data-section="correlation">Correlation</button>
+                <button class="nav-tab" data-section="monte-carlo">Monte Carlo</button>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <main class="main-content">
+        <div class="container">
+            <!-- Input Controls -->
+            <div class="control-panel">
+                <div class="input-group">
+                    <label for="tickers-input">Tickers (comma-separated):</label>
+                    <input 
+                        type="text" 
+                        id="tickers-input" 
+                        placeholder="e.g., AAPL,MSFT,GOOGL,AMZN"
+                        value="AAPL,MSFT,GOOGL,AMZN,META,NVDA,TSLA"
+                    >
+                </div>
+                <div class="input-group">
+                    <label for="market-input">Market Benchmark:</label>
+                    <input 
+                        type="text" 
+                        id="market-input" 
+                        placeholder="e.g., ^GSPC"
+                        value="^GSPC"
+                    >
+                </div>
+                <button class="btn btn-primary" id="load-data-btn">Load Data</button>
+                <div class="loading" id="loading" style="display: none;">
+                    <div class="spinner"></div>
+                    <span>Loading...</span>
+                </div>
+            </div>
+
+            <!-- Portfolio Section -->
+            <section id="portfolio" class="section active">
+                <h2>Portfolio Analytics</h2>
+                <div class="metrics-grid">
+                    <div class="metric-card">
+                        <div class="metric-value" id="annual-return">--</div>
+                        <div class="metric-label">Annual Return (%)</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-value" id="annual-volatility">--</div>
+                        <div class="metric-label">Annual Volatility (%)</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-value" id="sharpe-ratio">--</div>
+                        <div class="metric-label">Sharpe Ratio</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-value" id="max-drawdown">--</div>
+                        <div class="metric-label">Max Drawdown (%)</div>
+                    </div>
+                </div>
+                <div class="chart-container">
+                    <div id="portfolio-chart"></div>
+                </div>
+                <div class="allocation-container">
+                    <h3>Portfolio Allocation</h3>
+                    <div class="allocation-table" id="allocation-table"></div>
+                </div>
+            </section>
+
+            <!-- Beta Analysis Section -->
+            <section id="beta" class="section">
+                <h2>Beta Analysis</h2>
+                <div class="beta-container">
+                    <table class="data-table" id="beta-table">
+                        <thead>
+                            <tr>
+                                <th>Ticker</th>
+                                <th>Beta</th>
+                                <th>Specific Risk (%)</th>
+                            </tr>
+                        </thead>
+                        <tbody id="beta-tbody"></tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- Risk Chart Section -->
+            <section id="risk" class="section">
+                <h2>Risk vs Return Analysis</h2>
+                <div class="chart-container">
+                    <div id="risk-chart"></div>
+                </div>
+            </section>
+
+            <!-- Clustering Section -->
+            <section id="clustering" class="section">
+                <h2>K-Means Clustering</h2>
+                <div class="controls-secondary">
+                    <label for="n-clusters">Number of Clusters:</label>
+                    <input type="number" id="n-clusters" min="2" max="10" value="4">
+                    <button class="btn btn-secondary" id="run-clustering-btn">Run Clustering</button>
+                </div>
+                <div class="chart-container">
+                    <div id="clustering-chart"></div>
+                </div>
+                <table class="data-table" id="clustering-table">
+                    <thead>
+                        <tr>
+                            <th>Ticker</th>
+                            <th>Cluster</th>
+                            <th>Beta</th>
+                            <th>Specific Risk (%)</th>
+                        </tr>
+                    </thead>
+                    <tbody id="clustering-tbody"></tbody>
+                </table>
+            </section>
+
+            <!-- Correlation Section -->
+            <section id="correlation" class="section">
+                <h2>Correlation Matrix</h2>
+                <div class="chart-container">
+                    <div id="correlation-heatmap"></div>
+                </div>
+            </section>
+
+            <!-- Monte Carlo Section -->
+            <section id="monte-carlo" class="section">
+                <h2>Monte Carlo Simulation</h2>
+                <div class="controls-secondary">
+                    <div class="input-group">
+                        <label for="mc-ticker">Ticker:</label>
+                        <input type="text" id="mc-ticker" value="AAPL">
+                    </div>
+                    <div class="input-group">
+                        <label for="mc-days">Forecast Days:</label>
+                        <input type="number" id="mc-days" value="252" min="1">
+                    </div>
+                    <div class="input-group">
+                        <label for="mc-sims">Simulations:</label>
+                        <input type="number" id="mc-sims" value="5000" min="100">
+                    </div>
+                    <button class="btn btn-secondary" id="run-mc-btn">Run Simulation</button>
+                </div>
+                <div class="chart-container">
+                    <div id="mc-chart"></div>
+                </div>
+                <div class="mc-results" id="mc-results"></div>
+            </section>
+
+            <!-- Error Message -->
+            <div class="error-message" id="error-message"></div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <p>&copy; 2026 Finance Analytics Dashboard | Data-driven Investment Decisions</p>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>

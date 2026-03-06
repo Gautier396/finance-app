@@ -103,7 +103,10 @@ export default function App() {
         marginTop: "32px",
       }}
     >
-      <h1 style={{ marginTop: 0 }}>Quant Risk Dashboard</h1>
+      <div style={{ display: "flex", alignItems: "center", gap: "10px", marginTop: 0 }}>
+        <img src="/logo.png" alt="QuantRiskLab" style={{ height: "40px" }} />
+        <h1 style={{ margin: 0 }}>Quant Risk Dashboard</h1>
+      </div>
 
       <div style={{ display: "flex", gap: 12, marginBottom: 16 }}>
         <button
